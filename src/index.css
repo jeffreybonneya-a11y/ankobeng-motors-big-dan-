@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-headline: "Outfit", sans-serif;
+  --font-technical: "Space Grotesk", sans-serif;
+  --font-body: "Outfit", "Plus Jakarta Sans", sans-serif;
+  
+  --color-primary-accent: #E64A19;
+  --color-primary-hover: #D84315;
+  --color-primary-light: #FF5722;
+  --color-dark-base: #0F1115;
+  --color-dark-surface: #161920;
+  --color-dark-card: #1E222B;
+  --color-dark-card-hover: #252B36;
+  --color-border-subtle: #2B313E;
+  --color-border-subtle-hover: #3E4656;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-headline);
+  }
+
+  body {
+    background-color: var(--color-dark-base);
+    color: #e5e7eb;
+    overflow-x: hidden;
+    font-family: var(--font-headline);
+  }
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0F1115;
+}
+::-webkit-scrollbar-thumb {
+  background: #2B313E;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3E4656;
+}

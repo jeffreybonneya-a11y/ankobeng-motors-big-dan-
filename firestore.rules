@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Only the authorized administrator account can perform admin actions
+    function isAuthorizedAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.email != null &&
+             request.auth.token.email == "10362581@upsamail.edu.gh";
+    }
+
+    // Admins Collection
+    match /admins/{userId} {
+      allow read: if isAuthorizedAdmin();
+      allow write: if isAuthorizedAdmin();
+    }
+
+    // Public readable CMS collections - mutations locked exclusively to 10362581@upsamail.edu.gh
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /heroSlides/{slideId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /homepageContent/{docId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /homepage/{docId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /businessInfo/{docId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /media/{mediaId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /about/{docId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    match /contact/{docId} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+  }
+}

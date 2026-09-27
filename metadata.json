@@ -1,0 +1,6 @@
+{
+  "name": "Ankobeng Motors - Opel Engines & Parts",
+  "description": "Ankobeng Motors (Big Dan) - Direct dealers and importers of genuine Opel engines, gearboxes, cylinder heads, and replacement automotive parts in Abossey Okai, Accra, Ghana.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "admins": {
+      "title": "Admin",
+      "description": "Authorized administrator accounts and roles",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "Admin Google email address" },
+        "displayName": { "type": "string", "description": "Admin display name" },
+        "role": { "type": "string", "enum": ["admin", "superadmin"], "description": "Admin authorization role" },
+        "active": { "type": "boolean", "description": "Whether the admin account is active" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "role", "active"]
+    },
+    "products": {
+      "title": "Product",
+      "description": "Engine and automotive parts inventory items",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Display name of the engine or part" },
+        "imageUrl": { "type": "string", "description": "Direct image URL (Cloudinary or asset reference)" },
+        "description": { "type": "string", "description": "Factual description of the item" },
+        "category": { "type": "string", "enum": ["OPEL", "CHEVROLET", "OTHER"], "description": "Brand/type category" },
+        "featured": { "type": "boolean", "description": "Whether to feature prominently" },
+        "showInHero": { "type": "boolean", "description": "Whether to include in homepage hero slideshow" },
+        "sortOrder": { "type": "number", "description": "Display ordering index" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "imageUrl", "category"]
+    },
+    "homepage": {
+      "title": "HomepageContent",
+      "description": "Dynamic homepage headline and hero settings",
+      "type": "object",
+      "properties": {
+        "headline": { "type": "string", "description": "Main banner headline" },
+        "supportingText": { "type": "string", "description": "Supporting business description" },
+        "heroBackground": { "type": "string", "description": "URL of hero background photo" },
+        "primaryButtonText": { "type": "string", "description": "Text for primary CTA button" },
+        "secondaryButtonText": { "type": "string", "description": "Text for secondary CTA button" },
+        "heroEnabled": { "type": "boolean", "description": "Whether hero section is enabled" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["headline"]
+    },
+    "businessInfo": {
+      "title": "BusinessInfo",
+      "description": "Core dealership contact information and location coordinates",
+      "type": "object",
+      "properties": {
+        "businessName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "phone1": { "type": "string" },
+        "phone2": { "type": "string" },
+        "postalAddress": { "type": "string" },
+        "location": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessName", "phone1", "postalAddress", "location"]
+    },
+    "services": {
+      "title": "ServiceItem",
+      "description": "Dealership services and automotive parts specializations",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "iconName": { "type": "string" },
+        "sortOrder": { "type": "number" }
+      },
+      "required": ["title", "description"]
+    },
+    "about": {
+      "title": "AboutContent",
+      "description": "About Ankobeng Motors story and workshop details",
+      "type": "object",
+      "properties": {
+        "heading": { "type": "string" },
+        "content": { "type": "string" },
+        "storefrontImageUrl": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "contact": {
+      "title": "ContactSettings",
+      "description": "Contact form settings and dispatch instructions",
+      "type": "object",
+      "properties": {
+        "whatsappNumber": { "type": "string" },
+        "dispatchNotice": { "type": "string" }
+      }
+    },
+    "media": {
+      "title": "MediaAsset",
+      "description": "Uploaded media items and Cloudinary assets",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Original asset file name" },
+        "url": { "type": "string", "description": "Cloudinary delivery secure URL" },
+        "publicId": { "type": "string", "description": "Cloudinary public ID identifier" },
+        "resourceType": { "type": "string", "enum": ["image", "video"], "description": "Asset type" },
+        "format": { "type": "string", "description": "File format extension" },
+        "width": { "type": "number", "description": "Image or video width in pixels" },
+        "height": { "type": "number", "description": "Image or video height in pixels" },
+        "bytes": { "type": "number", "description": "Asset size in bytes" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "uploadedBy": { "type": "string", "description": "Firebase Auth UID of the uploading admin" }
+      },
+      "required": ["name", "url", "publicId", "resourceType", "uploadedBy"]
+    },
+    "settings": {
+      "title": "SiteSettings",
+      "description": "General website operational settings",
+      "type": "object",
+      "properties": {
+        "siteName": { "type": "string" },
+        "maintenanceMode": { "type": "boolean" },
+        "lastSyncedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "heroSlides": {
+      "title": "HeroSlide",
+      "description": "Slideshow engine items for the hero section",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "sortOrder": { "type": "number" },
+        "active": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -617,22 +617,23 @@ export const HomepageManager: React.FC = () => {
                       muted
                       loop
                       playsInline
-                      className="w-full h-full object-cover brightness-[0.75]"
+                      className="w-full h-full object-cover brightness-100 contrast-[1.02]"
                     />
                   ) : (
                     <img
                       key={previewMediaUrl}
                       src={previewMediaUrl}
                       alt="Homepage Background"
-                      className="w-full h-full object-cover brightness-[0.75]"
+                      className="w-full h-full object-cover brightness-100 contrast-[1.02]"
                     />
                   )
                 ) : (
                   <div className="w-full h-full bg-radial from-[#1E222B] to-[#0F1115] opacity-90" />
                 )}
 
-                {/* Overlaid Gradient Scrim */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0F1115] via-[#0F1115]/60 to-transparent" />
+                {/* Overlaid Gradient Scrim for ~80% Natural Visibility */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0F1115]/80 via-[#0F1115]/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0F1115]/40 via-transparent to-[#0F1115]/70" />
               </div>
 
               {/* Overlaid Content Preview */}

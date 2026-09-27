@@ -120,14 +120,14 @@ export const Hero: React.FC<HeroProps> = ({ products, onOpenOrderModal, onViewIn
               loop
               playsInline
               preload="auto"
-              className="w-full h-full object-cover object-center brightness-[0.75] contrast-[1.05]"
+              className="w-full h-full object-cover object-center brightness-100 contrast-[1.02] transition-opacity duration-500"
             />
           ) : (
             <img
               key={activeMedia.url}
               src={activeMedia.url}
               alt="Ankobeng Motors Homepage Background"
-              className="w-full h-full object-cover object-[center_30%] brightness-[0.75] contrast-[1.05] transition-opacity duration-500"
+              className="w-full h-full object-cover object-[center_30%] brightness-100 contrast-[1.02] transition-opacity duration-500"
               referrerPolicy="no-referrer"
             />
           )
@@ -138,9 +138,12 @@ export const Hero: React.FC<HeroProps> = ({ products, onOpenOrderModal, onViewIn
           </div>
         )}
 
-        {/* Measured Scrim for WCAG AA readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0F1115]/95 via-[#0F1115]/80 to-[#0F1115]/50"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F1115] via-transparent to-black/40"></div>
+        {/* Subtle Gradient Overlays for High Video Visibility (~80% Natural Clarity) */}
+        {/* Left-to-Right directional gradient for text readability on left column, transparent on right side for motion visibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0F1115]/85 via-[#0F1115]/40 to-transparent sm:from-[#0F1115]/80 sm:via-[#0F1115]/30 sm:to-transparent lg:w-[65%]" />
+        
+        {/* Subtle top/bottom framing gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0F1115]/50 via-transparent to-[#0F1115]/80 pointer-events-none" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">

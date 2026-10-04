@@ -43,6 +43,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onNavigateToPublic,
   onSignOut,
   adminEmail,
+  adminPhone,
   adminRecord,
   mobileOpen,
   onCloseMobile
@@ -132,7 +133,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               </span>
             </div>
             <span className="text-[11px] text-gray-400 truncate block font-mono">
-              {adminRecord.phone || adminEmail || '0244148534'}
+              {adminRecord.phone || adminPhone || '0244148534'}
             </span>
           </div>
         </div>

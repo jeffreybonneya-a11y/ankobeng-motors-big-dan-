@@ -5,45 +5,9 @@ export interface AdminRecord {
   active: boolean;
 }
 
-const SESSION_TOKEN_KEY = 'ankobeng_admin_session_token';
-
 /**
- * Get current session token from client storage
- */
-export function getStoredSessionToken(): string | null {
-  try {
-    return sessionStorage.getItem(SESSION_TOKEN_KEY) || localStorage.getItem(SESSION_TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Save session token in client storage
- */
-export function setStoredSessionToken(token: string): void {
-  try {
-    sessionStorage.setItem(SESSION_TOKEN_KEY, token);
-    localStorage.setItem(SESSION_TOKEN_KEY, token);
-  } catch {
-    // ignore storage quota errors
-  }
-}
-
-/**
- * Clear session token from client storage
- */
-export function clearStoredSessionToken(): void {
-  try {
-    sessionStorage.removeItem(SESSION_TOKEN_KEY);
-    localStorage.removeItem(SESSION_TOKEN_KEY);
-  } catch {
-    // ignore errors
-  }
-}
-
-/**
- * Authenticate with Phone Number + Password via secure server endpoint
+ * Authenticate with Phone Number + Password via secure server endpoint.
+ * This will set an HttpOnly session cookie on the server.
  */
 export async function loginWithPhone(phoneInput: string, passwordInput: string): Promise<AdminRecord> {
   const cleanPhone = phoneInput ? phoneInput.trim() : '';
@@ -53,101 +17,72 @@ export async function loginWithPhone(phoneInput: string, passwordInput: string):
     throw new Error('Invalid phone number or password.');
   }
 
-  try {
-    const response = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        phone: cleanPhone,
-        password: cleanPass
-      })
-    });
+  const response = await fetch('/api/admin/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      phone: cleanPhone,
+      password: cleanPass
+    })
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (response.ok && data.success && data.token) {
-      setStoredSessionToken(data.token);
-      return {
-        phone: data.user?.phone || cleanPhone,
-        displayName: data.user?.displayName || 'Big Dan Admin',
-        role: data.user?.role || 'superadmin',
-        active: true
-      };
-    } else {
-      throw new Error(data.error || 'Invalid phone number or password.');
-    }
-  } catch (err: any) {
-    if (err.message && err.message !== 'Failed to fetch') {
-      throw new Error('Invalid phone number or password.');
-    }
-    throw new Error('Invalid phone number or password.');
+  if (response.ok && data.success && data.user) {
+    return {
+      phone: data.user.phone,
+      displayName: data.user.displayName || 'Big Dan Admin',
+      role: data.user.role || 'superadmin',
+      active: true
+    };
+  } else {
+    throw new Error(data.error || 'Invalid phone number or password.');
   }
 }
 
 /**
- * Verify current admin session with server
+ * Verify current admin session with server.
+ * Since the session cookie is HttpOnly, the browser automatically includes it with the request.
  */
 export async function verifyAdminSession(): Promise<AdminRecord | null> {
-  const token = getStoredSessionToken();
-  if (!token) {
-    return null;
-  }
-
   try {
-    const response = await fetch('/api/admin/verify', {
-      method: 'POST',
+    const response = await fetch('/api/admin/session', {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ token })
+        'Accept': 'application/json'
+      }
     });
 
     if (!response.ok) {
-      clearStoredSessionToken();
       return null;
     }
 
     const data = await response.json();
-    if (data.valid && data.user) {
+    if (data.authenticated && data.user) {
       return {
-        phone: data.user.phone || '0244148534',
+        phone: data.user.phone,
         displayName: data.user.displayName || 'Big Dan Admin',
         role: data.user.role || 'superadmin',
         active: true
       };
-    } else {
-      clearStoredSessionToken();
-      return null;
     }
+    return null;
   } catch {
-    // If server check fails, invalidate session
-    clearStoredSessionToken();
     return null;
   }
 }
 
 /**
- * Sign out admin user and invalidate session on server
+ * Sign out admin user and invalidate session on server (clears cookie).
  */
 export async function signOutAdmin(): Promise<void> {
-  const token = getStoredSessionToken();
-  clearStoredSessionToken();
-
-  if (token) {
-    try {
-      await fetch('/api/admin/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ token })
-      });
-    } catch {
-      // ignore network errors on signout
-    }
+  try {
+    await fetch('/api/admin/logout', {
+      method: 'POST'
+    });
+  } catch (err) {
+    console.error('Logout error:', err);
   }
 }

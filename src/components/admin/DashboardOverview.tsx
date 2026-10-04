@@ -131,7 +131,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             {adminRecord.phone || '0244148534'}
           </div>
           <span className="text-[10px] text-gray-400 block">
-            Phone &amp; Password Auth
+            Express Session Auth
           </span>
         </div>
 

@@ -12,11 +12,27 @@ dotenv.config();
 const TARGET_PHONE_HASH = 'ec382e0b8c43b84c6146c013fbfa5775d9e5644fdabbf6ef9f7db0e165abda80';
 const TARGET_PASS_HASH = 'ec4f2dbb3b140095550c9afbbb69b5d6fd9e814b9da82fad0b34e9fcbe56f1cb';
 
-// Server-side active session store (token -> timestamp)
-const activeSessions = new Map<string, { createdAt: number; phone: string }>();
+// Server-side active session store (sid -> user info)
+interface AdminSession {
+  phone: string;
+  createdAt: number;
+}
+const activeSessions = new Map<string, AdminSession>();
 
 function hashInput(val: string): string {
   return crypto.createHash('sha256').update(val).digest('hex');
+}
+
+// Simple cookie parser helper
+function getCookie(req: Request, name: string): string | null {
+  const cookies = req.headers.cookie;
+  if (!cookies) return null;
+  const parts = cookies.split(';');
+  for (const part of parts) {
+    const [key, val] = part.trim().split('=');
+    if (key === name) return val;
+  }
+  return null;
 }
 
 async function startServer() {
@@ -25,49 +41,48 @@ async function startServer() {
 
   app.use(express.json());
 
-  // 1. Admin Login API Endpoint
+  // 1. Admin Login API Endpoint - Performs credential verification & sets HttpOnly cookie
   app.post('/api/admin/login', (req: Request, res: Response) => {
-    console.log("[ADMIN AUTH] login endpoint reached");
-
     const { phone, password } = req.body || {};
 
-    console.log("[ADMIN AUTH] phone received:", JSON.stringify(phone));
-    console.log("[ADMIN AUTH] password received:", password ? "[RECEIVED]" : "[MISSING]");
-
-    if (phone === undefined || password === undefined) {
+    if (typeof phone !== 'string' || typeof password !== 'string') {
       res.status(401).json({ success: false, error: 'Invalid phone number or password.' });
       return;
     }
 
-    const normalizedPhone = String(phone ?? '').trim();
-    const normalizedPassword = String(password ?? '');
+    const cleanPhone = phone.trim();
+    const cleanPass = password.trim();
 
-    if (!normalizedPhone || !normalizedPassword) {
+    if (!cleanPhone || !cleanPass) {
       res.status(401).json({ success: false, error: 'Invalid phone number or password.' });
       return;
     }
 
-    const phoneHash = hashInput(normalizedPhone);
-    const passHash = hashInput(normalizedPassword);
+    const phoneHash = hashInput(cleanPhone);
+    const passHash = hashInput(cleanPass);
 
-    // Verify exact credential match against secure server hashes or server environment variables
-    const isPhoneMatch = phoneHash === TARGET_PHONE_HASH || normalizedPhone === (process.env.ADMIN_PHONE || '0244148534');
-    const isPassMatch = passHash === TARGET_PASS_HASH || normalizedPassword === (process.env.ADMIN_PASSWORD || 'dan');
+    const isPhoneMatch = phoneHash === TARGET_PHONE_HASH || cleanPhone === process.env.ADMIN_PHONE;
+    const isPassMatch = passHash === TARGET_PASS_HASH || cleanPass === process.env.ADMIN_PASSWORD;
 
     if (isPhoneMatch && isPassMatch) {
-      console.log("[ADMIN AUTH] Login verification SUCCESSFUL for phone:", normalizedPhone);
-      // Generate a secure, cryptographically random session token
-      const sessionToken = crypto.randomBytes(32).toString('hex');
-      activeSessions.set(sessionToken, {
-        createdAt: Date.now(),
-        phone: normalizedPhone
+      // Generate a secure session ID
+      const sid = crypto.randomBytes(32).toString('hex');
+      activeSessions.set(sid, {
+        phone: cleanPhone,
+        createdAt: Date.now()
       });
 
+      // Construct cookie string
+      let cookieStr = `ankobeng_admin_sid=${sid}; Path=/; HttpOnly; SameSite=Strict`;
+      if (process.env.NODE_ENV === 'production') {
+        cookieStr += '; Secure';
+      }
+
+      res.setHeader('Set-Cookie', cookieStr);
       res.json({
         success: true,
-        token: sessionToken,
         user: {
-          phone: normalizedPhone,
+          phone: cleanPhone,
           displayName: 'Big Dan Admin',
           role: 'superadmin'
         }
@@ -75,42 +90,34 @@ async function startServer() {
       return;
     }
 
-    console.log("[ADMIN AUTH] Login verification FAILED for phone:", normalizedPhone);
-    // Generic error response - never reveal which field failed
+    // Generic error response
     res.status(401).json({ success: false, error: 'Invalid phone number or password.' });
   });
 
-  // 2. Admin Session Verification Endpoint
-  app.post('/api/admin/verify', (req: Request, res: Response) => {
-    const authHeader = req.headers.authorization;
-    const bodyToken = req.body?.token;
-    
-    let token = bodyToken;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7);
-    }
-
-    if (!token || typeof token !== 'string') {
-      res.status(401).json({ valid: false, error: 'Unauthenticated' });
+  // 2. Admin Get Session Endpoint
+  app.get('/api/admin/session', (req: Request, res: Response) => {
+    const sid = getCookie(req, 'ankobeng_admin_sid');
+    if (!sid) {
+      res.json({ authenticated: false });
       return;
     }
 
-    const session = activeSessions.get(token);
+    const session = activeSessions.get(sid);
     if (!session) {
-      res.status(401).json({ valid: false, error: 'Invalid or expired session' });
+      res.json({ authenticated: false });
       return;
     }
 
     // Sessions valid for 24 hours
     const MAX_AGE = 24 * 60 * 60 * 1000;
     if (Date.now() - session.createdAt > MAX_AGE) {
-      activeSessions.delete(token);
-      res.status(401).json({ valid: false, error: 'Session expired' });
+      activeSessions.delete(sid);
+      res.json({ authenticated: false });
       return;
     }
 
     res.json({
-      valid: true,
+      authenticated: true,
       user: {
         phone: session.phone,
         displayName: 'Big Dan Admin',
@@ -119,24 +126,23 @@ async function startServer() {
     });
   });
 
-  // 3. Admin Logout Endpoint
+  // 3. Admin Logout API Endpoint - clears the cookie & session
   app.post('/api/admin/logout', (req: Request, res: Response) => {
-    const authHeader = req.headers.authorization;
-    const bodyToken = req.body?.token;
-
-    let token = bodyToken;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7);
+    const sid = getCookie(req, 'ankobeng_admin_sid');
+    if (sid) {
+      activeSessions.delete(sid);
     }
 
-    if (token && typeof token === 'string') {
-      activeSessions.delete(token);
+    let cookieStr = 'ankobeng_admin_sid=; Path=/; HttpOnly; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    if (process.env.NODE_ENV === 'production') {
+      cookieStr += '; Secure';
     }
 
+    res.setHeader('Set-Cookie', cookieStr);
     res.json({ success: true });
   });
 
-  // Vite Integration
+  // Vite Integration for Dev / Static serving for Production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },

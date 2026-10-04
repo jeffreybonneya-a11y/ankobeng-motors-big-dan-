@@ -4,9 +4,9 @@ import {
   ShieldAlert, 
   ArrowLeft, 
   Loader2, 
-  Phone, 
-  Eye, 
-  EyeOff 
+  Phone,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { loginWithPhone, AdminRecord } from '../../services/auth';
 
@@ -27,25 +27,16 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(initialError);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-
-    const cleanPhone = phone.trim();
-    const cleanPass = password.trim();
-
-    if (!cleanPhone || !cleanPass) {
-      setErrorMessage('Invalid phone number or password.');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const record = await loginWithPhone(cleanPhone, cleanPass);
+      const record = await loginWithPhone(phone, password);
       onLoginSuccess(record);
     } catch (err: any) {
-      setErrorMessage('Invalid phone number or password.');
+      setErrorMessage(err.message || 'Invalid phone number or password.');
     } finally {
       setLoading(false);
     }
@@ -74,35 +65,36 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
             <Lock className="w-7 h-7" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-            ANKOBENG MOTORS
+            ANKOBENG MOTORS (BIG DAN)
           </h1>
           <span className="text-xs uppercase tracking-widest text-[#E64A19] font-bold">
-            BIG DAN • ADMIN CMS PORTAL
+            Admin Dashboard
           </span>
         </div>
 
-        {/* Clean Login Card */}
+        {/* Login Card */}
         <div className="bg-[#161920] border border-[#2B313E] py-8 px-6 sm:px-10 rounded-xl shadow-2xl">
           
           {/* Error Banner */}
           {errorMessage && (
             <div className="mb-6 p-4 rounded-lg bg-[#251818] border border-red-800/80 flex items-center gap-3 text-red-300 text-xs animate-fadeIn">
               <ShieldAlert className="w-5 h-5 text-red-400 shrink-0" />
-              <span className="font-bold">{errorMessage}</span>
+              <span className="font-semibold text-xs text-red-300">{errorMessage}</span>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="space-y-5">
             
             {/* Phone Number Field */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-300">
+              <label htmlFor="phone" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
                 Phone Number
               </label>
               <div className="relative">
                 <Phone className="w-4 h-4 text-gray-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
+                  id="phone"
                   type="text"
                   required
                   autoComplete="tel"
@@ -116,12 +108,13 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
 
             {/* Password Field */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-300">
+              <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-gray-300">
                 Password
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-gray-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
+                  id="password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   autoComplete="current-password"
@@ -141,7 +134,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
               </div>
             </div>
 
-            {/* Login Submit Button */}
+            {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"

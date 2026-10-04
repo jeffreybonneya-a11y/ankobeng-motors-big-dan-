@@ -6,7 +6,8 @@ interface AdminHeaderProps {
   currentTab: AdminTab;
   onOpenMobileMenu: () => void;
   onNavigateToPublic: () => void;
-  adminEmail: string;
+  adminEmail?: string;
+  adminPhone?: string;
 }
 
 export const AdminHeader: React.FC<AdminHeaderProps> = ({

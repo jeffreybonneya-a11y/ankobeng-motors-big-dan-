@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { User } from 'firebase/auth';
-import { AdminRecord, signOutAdmin } from '../../services/auth';
+import { AdminRecord } from '../../services/auth';
 import { AdminSidebar, AdminTab } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
 import { DashboardOverview } from './DashboardOverview';
@@ -11,29 +10,20 @@ import { HeroSlidesManager } from './HeroSlidesManager';
 import { HomepageManager } from './HomepageManager';
 import { BusinessInfoManager } from './BusinessInfoManager';
 import { SettingsManager } from './SettingsManager';
-import { PlaceholderView } from './PlaceholderView';
 
 interface AdminDashboardLayoutProps {
-  user: User;
   adminRecord: AdminRecord;
   onNavigateToPublic: () => void;
+  onSignOut: () => void;
 }
 
 export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
-  user,
   adminRecord,
-  onNavigateToPublic
+  onNavigateToPublic,
+  onSignOut
 }) => {
   const [currentTab, setCurrentTab] = useState<AdminTab>('overview');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-
-  const handleSignOut = async () => {
-    try {
-      await signOutAdmin();
-    } catch (err) {
-      console.error('Sign out error:', err);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#0F1115] flex font-['Outfit'] text-gray-200 antialiased selection:bg-[#E64A19] selection:text-white">
@@ -43,8 +33,8 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
         onNavigateToPublic={onNavigateToPublic}
-        onSignOut={handleSignOut}
-        adminEmail={user.email || 'Admin'}
+        onSignOut={onSignOut}
+        adminPhone={adminRecord.phone}
         adminRecord={adminRecord}
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
@@ -58,7 +48,7 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
           currentTab={currentTab}
           onOpenMobileMenu={() => setMobileSidebarOpen(true)}
           onNavigateToPublic={onNavigateToPublic}
-          adminEmail={user.email || ''}
+          adminPhone={adminRecord.phone}
         />
 
         {/* Tab Body */}
@@ -66,7 +56,6 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
           {currentTab === 'overview' && (
             <DashboardOverview
               adminRecord={adminRecord}
-              adminEmail={user.email || 'Admin'}
               onNavigateTab={setCurrentTab}
             />
           )}
@@ -92,7 +81,7 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
           )}
 
           {currentTab === 'media' && (
-            <MediaLibrary user={user} />
+            <MediaLibrary user={{ uid: 'admin_session', email: adminRecord.phone }} />
           )}
 
           {currentTab === 'settings' && (

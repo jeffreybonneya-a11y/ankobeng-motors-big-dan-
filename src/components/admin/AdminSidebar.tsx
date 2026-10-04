@@ -30,7 +30,8 @@ interface AdminSidebarProps {
   onSelectTab: (tab: AdminTab) => void;
   onNavigateToPublic: () => void;
   onSignOut: () => void;
-  adminEmail: string;
+  adminEmail?: string;
+  adminPhone?: string;
   adminRecord: AdminRecord;
   mobileOpen: boolean;
   onCloseMobile: () => void;
@@ -131,7 +132,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               </span>
             </div>
             <span className="text-[11px] text-gray-400 truncate block font-mono">
-              {adminEmail}
+              {adminRecord.phone || adminEmail || '0244148534'}
             </span>
           </div>
         </div>

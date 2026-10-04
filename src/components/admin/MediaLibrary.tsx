@@ -22,7 +22,7 @@ import { uploadToCloudinary, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } f
 import { MediaItem, createMediaRecord, subscribeToMedia, deleteMediaRecord } from '../../services/media';
 
 interface MediaLibraryProps {
-  user: User;
+  user?: { uid?: string; email?: string };
 }
 
 /**
@@ -212,7 +212,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({ user }) => {
         height: uploadResult.height,
         duration: resolvedDuration ? Math.round(resolvedDuration * 10) / 10 : undefined,
         bytes: uploadResult.bytes || selectedFile.size,
-        uploadedBy: user.uid
+        uploadedBy: user?.uid || 'admin'
       });
 
       setUploadFeedback({

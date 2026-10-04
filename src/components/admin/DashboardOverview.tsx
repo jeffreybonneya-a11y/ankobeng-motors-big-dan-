@@ -22,7 +22,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 
 interface DashboardOverviewProps {
   adminRecord: AdminRecord;
-  adminEmail: string;
+  adminEmail?: string;
   onNavigateTab: (tab: AdminTab) => void;
 }
 
@@ -119,19 +119,19 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       {/* 2. Authentication & Real System Information Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        {/* Card 1: Admin Email */}
+        {/* Card 1: Admin Phone */}
         <div className="p-4 rounded-lg bg-[#161920] border border-[#2B313E] space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
-              Admin Email
+              Admin Phone
             </span>
             <UserCheck className="w-4 h-4 text-[#E64A19]" />
           </div>
           <div className="font-bold text-white text-xs truncate">
-            {adminEmail}
+            {adminRecord.phone || '0244148534'}
           </div>
           <span className="text-[10px] text-gray-400 block">
-            Google Admin Auth
+            Phone &amp; Password Auth
           </span>
         </div>
 
